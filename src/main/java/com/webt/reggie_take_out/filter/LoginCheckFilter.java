@@ -1,0 +1,71 @@
+package com.webt.reggie_take_out.filter;
+
+import com.alibaba.fastjson.JSON;
+import com.webt.reggie_take_out.common.R;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.annotations.SelectKey;
+import org.springframework.util.AntPathMatcher;
+
+import javax.servlet.*;
+import javax.servlet.annotation.WebFilter;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
+/**
+ * 拦截用户在未登录情况下进入后台页面
+ */
+@Slf4j
+@WebFilter(filterName = "LoginCheckFilter",urlPatterns = "/*")
+public class LoginCheckFilter implements Filter {
+    public static final AntPathMatcher antPathMatcher = new AntPathMatcher();
+
+    @Override
+    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
+        HttpServletRequest request = (HttpServletRequest) servletRequest;
+        HttpServletResponse response = (HttpServletResponse) servletResponse;
+        String requestURI = request.getRequestURI();
+
+        String[] urls = new String[]{
+                "/employee/login",
+                "/employee/logout",
+                "/backend/**",
+                "front/**",
+        };
+        boolean check = checkPath(urls, requestURI);
+        //不需要拦截放行
+        if (check) {
+            log.info("这个请求不需要拦截");
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        boolean checkLogin = request.getSession().getAttribute("employee") != null;
+        if (checkLogin) {
+            log.info("用户已登录,登录id是：{}",request.getSession().getAttribute("employee"));
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        log.info("用户未登录");
+        response.getWriter().write(JSON.toJSONString(R.error("NOTLOGIN")));
+        return;
+
+
+    }
+
+    /**
+     * 检查路径是否需要被拦截
+     * @param urls
+     * @param path
+     * @return
+     */
+    public boolean checkPath(String[] urls, String path) {
+        for (String url : urls) {
+            if (antPathMatcher.match(url, path)) {
+                return true;
+            }
+        }
+        return false;
+    }
+}
