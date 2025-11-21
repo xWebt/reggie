@@ -1,6 +1,7 @@
 package com.webt.reggie_take_out.filter;
 
 import com.alibaba.fastjson.JSON;
+import com.webt.reggie_take_out.common.BaseContext;
 import com.webt.reggie_take_out.common.R;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.annotations.SelectKey;
@@ -30,7 +31,8 @@ public class LoginCheckFilter implements Filter {
                 "/employee/login",
                 "/employee/logout",
                 "/backend/**",
-                "front/**",
+                "/common/**",
+                "/front/**",
         };
         boolean check = checkPath(urls, requestURI);
         //不需要拦截放行
@@ -43,6 +45,13 @@ public class LoginCheckFilter implements Filter {
         boolean checkLogin = request.getSession().getAttribute("employee") != null;
         if (checkLogin) {
             log.info("用户已登录,登录id是：{}",request.getSession().getAttribute("employee"));
+
+            Long currentId = (Long) request.getSession().getAttribute("employee");
+            log.info("现在的id是{}",currentId);
+            BaseContext.setCurrentId(currentId);
+//            long id = Thread.currentThread().getId();
+//            log.info("线程id是：{}",id);
+
             filterChain.doFilter(request, response);
             return;
         }

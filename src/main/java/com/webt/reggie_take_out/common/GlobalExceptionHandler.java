@@ -15,6 +15,12 @@ import java.sql.SQLIntegrityConstraintViolationException;
 @ResponseBody
 @ControllerAdvice(annotations = {RestController.class,Controller.class})
 public class GlobalExceptionHandler {
+//    @ExceptionHandler(Exception.class) // 添加一个捕获所有异常的处理器
+//    public R<String> handleGenericException(Exception ex) {
+//        log.error("捕获到通用未知异常: {}", ex.getMessage(), ex); // 记录堆栈信息
+//        return R.error("服务器发生未知错误");
+//    }
+
     @ExceptionHandler(SQLIntegrityConstraintViolationException.class)
     public R<String> exceptionHandler(SQLIntegrityConstraintViolationException ex) {
         log.error(ex.getMessage());
@@ -25,5 +31,11 @@ public class GlobalExceptionHandler {
             return R.error(message);
         }
         return R.error("未知错误");
+    }
+
+    @ExceptionHandler(CustomException.class)
+    public R<String> exceptionHandler(CustomException ex) {
+        log.error(ex.getMessage());
+        return R.error(ex.getMessage());
     }
 }

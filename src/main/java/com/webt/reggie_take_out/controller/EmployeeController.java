@@ -1,12 +1,16 @@
 package com.webt.reggie_take_out.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.webt.reggie_take_out.common.R;
 import com.webt.reggie_take_out.entity.Employee;
 import com.webt.reggie_take_out.service.impl.EmployeeService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
+import org.apache.ibatis.annotations.Update;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.DigestUtils;
+
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -58,17 +62,66 @@ public class EmployeeController {
     public R<String> saveEmployee(HttpServletRequest request,@RequestBody Employee employee) {
         log.info("新增员工，员工信息：{}",employee.toString());
         employee.setPassword(DigestUtils.md5DigestAsHex("123456".getBytes()));
-        employee.setCreateTime(LocalDateTime.now());
-        employee.setUpdateTime(LocalDateTime.now());
+//        employee.setCreateTime(LocalDateTime.now());
+//        employee.setUpdateTime(LocalDateTime.now());
 
         Long employeeId =(Long) request.getSession().getAttribute("employee");
 
-        employee.setCreateUser(employeeId);
-        employee.setUpdateUser(employeeId);
+//        employee.setCreateUser(employeeId);
+//        employee.setUpdateUser(employeeId);
 
         employeeService.save(employee);
 
         return R.success("新增成员成功");
     }
 
+
+    @GetMapping("/page")
+    public  R<Page> page(int page,int pageSize,String name){
+        log.info("page = {},pageSize = {},name = {}",page,pageSize,name);
+
+        Page pageInfo = new Page(page,pageSize);
+
+        LambdaQueryWrapper<Employee> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.like(StringUtils.isNotEmpty(name),Employee::getName,name);
+
+        queryWrapper.orderByDesc(Employee::getUpdateTime);
+
+        employeeService.page(pageInfo,queryWrapper);
+
+        return R.success(pageInfo);
+    }
+
+    /**
+     * 根据id修改员工信息
+     * @param request
+     * @param employee
+     * @return
+     */
+    @PutMapping
+    public  R<String> updateEmployee(HttpServletRequest request,@RequestBody Employee employee) {
+        log.info(employee.toString());
+//
+//        Long userId = (Long)request.getSession().getAttribute("employee");
+//        employee.setUpdateTime(LocalDateTime.now());
+//        employee.setUpdateUser(userId);
+        employeeService.updateById(employee);
+
+        return R.success("员工信息修改成功");
+    }
+
+    /**
+     * 根据id查询员工信息
+     * @param id
+     * @return
+     */
+    @GetMapping("/{id}")
+    public R<Employee> getById(@PathVariable Long id){
+        log.info("根据id查询员工信息");
+        Employee employee = employeeService.getById(id);
+        if(employee == null) {
+            return R.error("没有查询到员工信息");
+        }
+        return R.success(employee);
+    }
 }
