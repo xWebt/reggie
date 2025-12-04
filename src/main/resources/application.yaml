@@ -1,23 +1,30 @@
 server:
-    port: 8080
+  port: 8080
 
 spring:
-    application:
-        name: reggie_take_out
-    datasource:
-        driver-class-name: com.mysql.cj.jdbc.Driver
-        url: jdbc:mysql://localhost:3306/reggie?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
-        username: root
-        password: NewPassword123!
+  application:
+    name: reggie_take_out
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/reggie?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: NewPassword123!
 
 mybatis-plus:
-    configuration:
-    # ???????????????????????????????????????
-        map-underscore-to-camel-case: true
-        log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  configuration:
+
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+redis:
+  host: 127.0.0.1
+  port: 6379
+  password:
+  datebase: 0
 
 global-config:
-    db-config:
-        id-type: ASSIGN_ID
+  db-config:
+    id-type: ASSIGN_ID
 reggie:
-    path: /home/winnseffut/my_code/reggie_take_out/img/
+  path: /home/winnseffut/my_code/reggie_take_out/img/
+
+
