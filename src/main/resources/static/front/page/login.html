@@ -58,31 +58,79 @@
             created(){},
             mounted(){},
             methods:{
-                getCode(){
-                    this.form.code = ''
+                // getCode(){
+                //     this.form.code = ''
+                //     const regex = /^(13[0-9]{9})|(15[0-9]{9})|(17[0-9]{9})|(18[0-9]{9})|(19[0-9]{9})$/;
+                //     if (regex.test(this.form.phone)) {
+                //         this.msgFlag = false
+                //         this.form.code = (Math.random()*1000000).toFixed(0)
+                //     }else{
+                //         this.msgFlag = true
+                //     }
+                // },
+                async getCode() {
+                    this.form.code = '';
                     const regex = /^(13[0-9]{9})|(15[0-9]{9})|(17[0-9]{9})|(18[0-9]{9})|(19[0-9]{9})$/;
+
+                    // 验证手机号格式
                     if (regex.test(this.form.phone)) {
-                        this.msgFlag = false
-                        this.form.code = (Math.random()*1000000).toFixed(0)
-                    }else{
-                        this.msgFlag = true
+                        this.msgFlag = false;
+
+                        // 向后端发送请求，触发发送验证码
+                        try {
+                            const response = await axios.post('http://localhost:8080/user/sendMsg', { phone: this.form.phone });
+
+                            // 后端响应成功后，显示提示
+                            if (response.data.code === 1) {
+                                this.$notify({ type: 'success', message: '验证码已发送' });
+                            } else {
+                                this.$notify({ type: 'error', message: '验证码发送失败' });
+                            }
+                        } catch (error) {
+                            this.$notify({ type: 'error', message: '请求失败，请稍后重试' });
+                        }
+                    } else {
+                        this.msgFlag = true;
+                        this.$notify({ type: 'warning', message: '请输入有效的手机号码' });
                     }
                 },
-                async btnLogin(){
-                    if(this.form.phone && this.form.code){
-                        this.loading = true
-                        const res = await loginApi({phone:this.form.phone})
-                        this.loading = false
-                        if(res.code === 1){
-                            sessionStorage.setItem("userPhone",this.form.phone)
-                            window.requestAnimationFrame(()=>{
-                                window.location.href= '/front/index.html'
-                            })                           
-                        }else{
-                            this.$notify({ type:'warning', message:res.msg});
+                // async btnLogin(){
+                //     if(this.form.phone && this.form.code){
+                //         this.loading = true
+                //         const res = await loginApi({phone:this.form.phone})
+                //         this.loading = false
+                //         if(res.code === 1){
+                //             sessionStorage.setItem("userPhone",this.form.phone)
+                //             window.requestAnimationFrame(()=>{
+                //                 window.location.href= '/front/index.html'
+                //             })
+                //         }else{
+                //             this.$notify({ type:'warning', message:res.msg});
+                //         }
+                //     }else{
+                //         this.$notify({ type:'warning', message:'请输入手机号码'});
+                //     }
+                // }
+                async btnLogin() {
+                    if (this.form.phone && this.form.code) {
+                        this.loading = true;
+
+                        // 确保将手机号码和验证码发送到后端
+                        const res = await loginApi({
+                            phone: this.form.phone,
+                            code: this.form.code   // 发送验证码到后端
+                        });
+
+                        this.loading = false;
+
+                        if (res.code === 1) {
+                            sessionStorage.setItem("userPhone", this.form.phone);
+                            window.location.href = '/front/index.html'; // 登录成功，跳转页面
+                        } else {
+                            this.$notify({ type: 'warning', message: res.msg });
                         }
-                    }else{
-                        this.$notify({ type:'warning', message:'请输入手机号码'});
+                    } else {
+                        this.$notify({ type: 'warning', message: '请输入手机号码和验证码' });
                     }
                 }
             }

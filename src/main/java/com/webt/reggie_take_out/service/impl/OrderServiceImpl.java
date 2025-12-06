@@ -9,6 +9,7 @@ import com.webt.reggie_take_out.entity.*;
 import com.webt.reggie_take_out.mapper.OrderMapper;
 import com.webt.reggie_take_out.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -17,6 +18,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+@Service
 public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implements OrderService {
 
     @Autowired
