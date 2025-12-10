@@ -31,10 +31,14 @@ public class LoginCheckFilter implements Filter {
                 "/employee/login",
                 "/employee/logout",
                 "/backend/**",
-                "/common/**",
                 "/front/**",
+                "/common/**",
                 "/user/sendMsg", // 移动端发送短信
-                "/user/login"    // 移动端登入
+                "/user/login",    // 移动端登入
+                "/doc.html",
+                "/webjars/**",
+                "/swagger-resources",
+                "/v2/api-docs"
         };
         boolean check = checkPath(urls, requestURI);
         //不需要拦截放行

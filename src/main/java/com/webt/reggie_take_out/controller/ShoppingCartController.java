@@ -6,6 +6,9 @@ import com.webt.reggie_take_out.common.R;
 import com.webt.reggie_take_out.entity.ShoppingCart;
 import com.webt.reggie_take_out.mapper.ShopingCartMapper;
 import com.webt.reggie_take_out.service.ShopingCartService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -16,9 +19,12 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping("shoppingCart")
+@Api(tags = "购物车管理接口") // 类注解
 public class ShoppingCartController {
+
     @Autowired
     private ShopingCartService shopingCartService;
+
     @Autowired
     private ShopingCartMapper shopingCartMapper;
 
@@ -29,7 +35,10 @@ public class ShoppingCartController {
      * @return
      */
     @PostMapping("/add")
-    public R<ShoppingCart> add(@RequestBody ShoppingCart shoppingCart) {
+    @ApiOperation("添加商品到购物车")
+    public R<ShoppingCart> add(
+            @RequestBody @ApiParam(value = "购物车信息", required = true) ShoppingCart shoppingCart) {
+
         log.info("add shopping cart {}", shoppingCart);
 
         Long currentId = BaseContext.getCurrentId();
@@ -37,7 +46,7 @@ public class ShoppingCartController {
 
         Long dishId = shoppingCart.getDishId();
 
-        LambdaQueryWrapper<ShoppingCart> queryWrapper = new LambdaQueryWrapper<ShoppingCart>();
+        LambdaQueryWrapper<ShoppingCart> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(ShoppingCart::getUserId, currentId);
 
         if (dishId != null) {
@@ -62,9 +71,10 @@ public class ShoppingCartController {
     }
 
     @GetMapping("/list")
+    @ApiOperation("查询购物车列表")
     public R<List<ShoppingCart>> list() {
         log.info("查询购物车");
-        LambdaQueryWrapper<ShoppingCart> queryWrapper = new LambdaQueryWrapper<ShoppingCart>();
+        LambdaQueryWrapper<ShoppingCart> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(ShoppingCart::getUserId, BaseContext.getCurrentId());
         queryWrapper.orderByAsc(ShoppingCart::getCreateTime);
         List<ShoppingCart> shoppingCarts = shopingCartService.list(queryWrapper);
@@ -73,6 +83,7 @@ public class ShoppingCartController {
     }
 
     @DeleteMapping("/clean")
+    @ApiOperation("清空购物车")
     public R<String> clean() {
         LambdaQueryWrapper<ShoppingCart> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(ShoppingCart::getUserId, BaseContext.getCurrentId());
